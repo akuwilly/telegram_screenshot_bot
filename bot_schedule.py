@@ -8,6 +8,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import datetime
 
+print("✅ Bot berhasil start di Railway")
+print("⏳ Menunggu jadwal kirim screenshot...")
+
 # === CONFIG FROM ENV ===
 TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
 CHAT_ID = int(os.environ['TELEGRAM_CHAT_ID'])
@@ -63,6 +66,10 @@ schedule.every().day.at("20:00").do(job)
 
 print("📡 BOT JALAN ✅ Menunggu waktu kirim...")
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+try:
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+except Exception as e:
+    print("❌ BOT ERROR:", e)
+
