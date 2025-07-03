@@ -1,17 +1,21 @@
 import asyncio
 import schedule
 import time
+import os
 from telegram import Bot
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import datetime
 
-# === KONFIGURASI ===
-TOKEN = '7876251352:AAFKOTc0uAvj_cpsK4dB6TwFEVjAtkJ0q9s'
-CHAT_ID = 1276330579
-URL_WEBSITE = 'https://www.google.com'  # Ganti ke URL dashboard kamu
-CHROMEDRIVER_PATH = r'E:\PKL\telegram_screenshot_bot\chromedriver-win64\chromedriver-win64\chromedriver.exe'
+# === CONFIG FROM ENV ===
+TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
+CHAT_ID = int(os.environ['TELEGRAM_CHAT_ID'])
+URL_WEBSITE = os.environ.get('TARGET_URL', 'https://www.google.com')
+
+# === Driver path in container ===
+CHROMEDRIVER_PATH = '/usr/bin/chromedriver'
+CHROME_BIN = '/usr/bin/google-chrome'
 
 bot = Bot(token=TOKEN)
 
@@ -20,6 +24,10 @@ async def ambil_dan_kirim_screenshot():
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1280,720')
+    options.binary_location = CHROME_BIN
+
     service = Service(CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -45,7 +53,7 @@ async def ambil_dan_kirim_screenshot():
 def job():
     asyncio.run(ambil_dan_kirim_screenshot())
 
-# 🔁 Jadwal otomatis: jam 09:00 dan 15:00 setiap hari
+# Jadwal
 schedule.every().day.at("07:00").do(job)
 schedule.every().day.at("09:00").do(job)
 schedule.every().day.at("13:00").do(job)
@@ -53,10 +61,8 @@ schedule.every().day.at("15:00").do(job)
 schedule.every().day.at("17:00").do(job)
 schedule.every().day.at("20:00").do(job)
 
-
 print("📡 BOT JALAN ✅ Menunggu waktu kirim...")
 
-# Loop terus
 while True:
     schedule.run_pending()
     time.sleep(1)
